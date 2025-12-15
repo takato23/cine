@@ -1,0 +1,228 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  CLIENT
+}
+
+enum MovieStatus {
+  ESTRENO
+  CARTELERA
+  PROXIMAMENTE
+}
+
+enum ShowtimeFormat {
+  TWO_D
+  THREE_D
+  IMAX
+}
+
+enum SeatType {
+  STANDARD
+  VIP
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ProductCategory {
+  POCHOCLOS
+  BEBIDAS
+  SNACKS
+  COMBOS
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      UserRole @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+}
+
+model Movie {
+  id          String       @id @default(cuid())
+  title       String
+  originalTitle String?
+  synopsis    String       @db.Text
+  duration    Int          // en minutos
+  genres      String[]     // array de géneros
+  rating      String?      // ATP, +13, +16, +18
+  status      MovieStatus
+  posterUrl   String?
+  trailerUrl  String?
+  releaseDate DateTime?
+  isFeatured  Boolean      @default(false) // película destacada en cartelera
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  showtimes Showtime[]
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  name        String   @unique // "Roja" o "Amarilla"
+  capacity    Int
+  layout      Json     // { rows: [{ letter: "A", seats: [{ number: 1, type: "STANDARD" }] }] }
+  seatingMode String   @default("ASSIGNED") // "ASSIGNED" | "GENERAL"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  showtimes Showtime[]
+  pricingRules PricingRule[]
+}
+
+model PricingRule {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  seatType    SeatType
+  basePrice   Float
+  roomId      String?
+  room        Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int?     // 0-6 (domingo-sábado), null = todos los días
+  startTime   String?  // HH:mm formato
+  endTime     String?  // HH:mm formato
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  showtimes   Showtime[]
+}
+
+model Showtime {
+  id          String         @id @default(cuid())
+  movieId     String
+  movie       Movie          @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  roomId      String
+  room        Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  startTime   DateTime
+  format      ShowtimeFormat @default(TWO_D)
+  language    String         @default("es")
+  subtitles   String?        // "es", "en", null
+  pricingRuleId String?
+  pricingRule PricingRule?  @relation(fields: [pricingRuleId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  orderItems OrderItem[]
+  seatLocks  SeatLock[]
+}
+
+model SeatLock {
+  id         String   @id @default(cuid())
+  showtimeId String
+  showtime   Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  row        String   // "A", "B", etc.
+  seatNumber Int
+  lockedUntil DateTime
+  orderId    String?  // si está asociado a una orden
+  createdAt  DateTime @default(now())
+}
+
+model Product {
+  id          String          @id @default(cuid())
+  name        String
+  description String?         @db.Text
+  category    ProductCategory
+  price       Float
+  imageUrl    String?
+  stock       Int?            // null = ilimitado
+  isActive    Boolean         @default(true)
+  variations  Json?           // { size: ["chico", "grande"], flavor: ["dulce", "salado"] }
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  orderItems OrderItem[]
+  promotions Promotion[]
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int?     // 0-6, null = todos los días
+  discount    Float    // porcentaje o monto fijo
+  isActive    Boolean  @default(true)
+  validFrom   DateTime?
+  validUntil  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status          OrderStatus @default(PENDING)
+  subtotal        Float
+  serviceFee      Float       @default(0)
+  total           Float
+  expiresAt       DateTime?   // para órdenes pendientes
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  items      OrderItem[]
+  payment    Payment?
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type        String   // "ticket" o "product"
+  showtimeId  String?
+  showtime    Showtime? @relation(fields: [showtimeId], references: [id], onDelete: SetNull)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  row         String?  // para tickets
+  seatNumber  Int?     // para tickets
+  quantity    Int      @default(1)
+  unitPrice   Float
+  totalPrice  Float
+  createdAt   DateTime @default(now())
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status          PaymentStatus @default(PENDING)
+  method          String        // "mercadopago"
+  mpPreferenceId  String?       // ID de preferencia de Mercado Pago
+  mpPaymentId     String?       // ID del pago en Mercado Pago
+  qrCode          String?       // QR code para escanear
+  qrCodeBase64    String?       // QR code en base64
+  expiresAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+

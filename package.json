@@ -1,0 +1,18 @@
+{
+  "name": "cinema-pergamino",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../mobile && npm install"
+  },
+  "workspaces": [
+    "backend",
+    "frontend",
+    "mobile"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Cinema Pergamino",
+    "slug": "cinema-pergamino",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "cinemapergamino",
+    "platforms": ["ios", "android", "web"],
+    "assetBundlePatterns": ["**/*"],
+    "extra": {
+      "eas": {
+        "projectId": "mock-project-id"
+      },
+      "apiUrl": "http://localhost:3001/api"
+    }
+  }
+}
