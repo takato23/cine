@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence, HTMLMotionProps } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 import React from 'react';
 
 // Re-export common motion components
