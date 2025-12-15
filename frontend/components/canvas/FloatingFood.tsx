@@ -27,8 +27,7 @@ export function FloatingFood() {
             <Float speed={2} rotationIntensity={0.5} floatIntensity={1} floatingRange={[-0.2, 0.2]}>
                 <group ref={popcornRef} position={[-1.5, 0, 0]} rotation={[0.2, 0.3, 0]}>
                     <Cylinder args={[0.5, 0.35, 1.2, 32]} position={[0, 0, 0]}>
-                        <meshStandardMaterial color="#ee4b2b" roughness={0.3} striped="red" />
-                        {/* Simple striped material logic would be complex here, stick to red for now */}
+                        <meshStandardMaterial color="#ee4b2b" roughness={0.3} />
                     </Cylinder>
                     {/* Popcorn Kernels (Spheres) */}
                     {Array.from({ length: 15 }).map((_, i) => (
