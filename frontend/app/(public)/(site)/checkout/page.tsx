@@ -128,7 +128,7 @@ export default function CheckoutPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[url('/images/noise.png')] bg-fixed flex items-center justify-center">
+      <div className="min-h-screen bg-[url('/images/noise.svg')] bg-fixed flex items-center justify-center">
         <main className="container mx-auto px-4 max-w-lg">
           <Card className="p-8 backdrop-blur-xl bg-black/60 border-white/10" variant="glow">
             <div className="flex flex-col items-center text-center space-y-4">
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[url('/images/noise.png')] bg-fixed opacity-100">
+    <div className="min-h-screen bg-[url('/images/noise.svg')] bg-fixed opacity-100">
 
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none">

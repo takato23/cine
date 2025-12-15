@@ -68,7 +68,7 @@ export default function ConfiteriaPage() {
 
       {/* 1. IMMERSIVE ANIMATED BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-20 mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-[url('/images/noise.svg')] opacity-20 mix-blend-overlay"></div>
         {/* Floating Orbs */}
         <div className="absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-primary-900/10 rounded-full blur-[100px] animate-pulse-slow" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
