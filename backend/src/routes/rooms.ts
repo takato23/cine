@@ -9,7 +9,7 @@ const router = Router();
 const roomSchema = z.object({
   name: z.string(),
   capacity: z.number().int().positive(),
-  layout: z.any(), // JSON structure
+  layout: z.any().default({}), // JSON structure - default to empty object
   seatingMode: z.enum(['ASSIGNED', 'GENERAL']).optional(),
 });
 
