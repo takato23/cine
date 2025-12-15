@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Float, Cylinder, Box, Sphere } from '@react-three/drei';
+import * as THREE from 'three';
 
 export function FloatingFood() {
     const popcornRef = useRef<THREE.Group>(null!);
