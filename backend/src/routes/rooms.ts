@@ -53,7 +53,12 @@ router.post(
       const data = roomSchema.parse(req.body);
 
       const room = await prisma.room.create({
-        data,
+        data: {
+          name: data.name,
+          capacity: data.capacity,
+          layout: data.layout ?? {},
+          seatingMode: data.seatingMode,
+        },
       });
 
       res.status(201).json(room);
