@@ -171,7 +171,25 @@ const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
                     <MarqueeBulb key={i} position={bulb.position} delay={bulb.delay} />
                 ))}
 
+                {/* Text - CINEMA PERGAMINO */}
+                <Text
+                    position={[0, 0.2, 0.1]}
+                    fontSize={0.38}
+                    color="#FFD700"
+                    anchorX="center"
+                    anchorY="middle"
+                    letterSpacing={0.1}
+                    outlineWidth={0.015}
+                    outlineColor="#8B4513"
+                >
+                    CINEMA PERGAMINO
+                </Text>
 
+                {/* Decorative line under text */}
+                <mesh position={[0, -0.1, 0.095]}>
+                    <boxGeometry args={[2.5, 0.025, 0.01]} />
+                    <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.8} />
+                </mesh>
 
                 {/* Star Decorations - Now with glow */}
                 <mesh position={[-1.6, 0.6, 0.1]}>
