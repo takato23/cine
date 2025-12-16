@@ -221,7 +221,7 @@ export default function SeatMap3D({ rows, selectedSeats, onToggleSeat, roomName 
             const rowWidth = rowData.seats.length * seatSpacing;
             const rowOffset = -rowWidth / 2;
             const rowZ = -8 + (rIndex * rowSpacing);
-            const rowY = rIndex * 0.6; // NOTE: This was 0.9 in render loop, fixed to match for consistency if needed, but render loop overrides.
+            const rowY = rIndex * 0.9; // FIXED: Must match render loop (was 0.6, now 0.9)
 
             rowData.seats.forEach((seat, sIndex) => {
                 const x = rowOffset + (sIndex * seatSpacing) + (seatSpacing / 2);
@@ -243,7 +243,9 @@ export default function SeatMap3D({ rows, selectedSeats, onToggleSeat, roomName 
             const pos = seatPositions.get(`${activeSeat.row}-${activeSeat.seatNumber}`);
             if (pos) {
                 // POV: Seat Position + Eye Level
-                const eyePos = pos.clone().add(new THREE.Vector3(0, 1.2, 0)); // Sit height
+                // Eye height = seat cushion (0.35) + backrest height (0.7) + head (~0.45) = ~1.5
+                // This simulates proper eye height of a seated person looking over the front row
+                const eyePos = pos.clone().add(new THREE.Vector3(0, 1.5, 0)); // Proper seated eye height
 
                 // Animate to Seat POV
                 cameraControlsRef.current.setLookAt(
