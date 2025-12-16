@@ -17,12 +17,8 @@ export default function LandingOverlay() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.5 }}
                     >
-                        <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white mb-6 drop-shadow-2xl">
-                            CINEMA<br />
-                            <span className="text-secondary-500">PERGAMINO</span>
-                        </h1>
                         <p className="text-xl text-neutral-200 mb-8 max-w-md font-light leading-relaxed drop-shadow-lg">
-                            Donde las historias cobran vida. Viví la magia del cine con la mejor proyección y sonido digital.
+                            Donde las historias cobran vida. Viví la magia del cine con la mejor proyección y sonido.
                         </p>
                         <div className="flex gap-4">
                             <Link href="/cartelera">
