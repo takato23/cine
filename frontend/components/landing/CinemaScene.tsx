@@ -1,7 +1,7 @@
 'use client';
 
 import { useScroll, Text, Stars, Sparkles, MeshTransmissionMaterial, Environment } from '@react-three/drei';
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -11,7 +11,6 @@ import * as THREE from 'three';
 const MarqueeBulb = ({ position, delay }: { position: [number, number, number]; delay: number }) => {
     const meshRef = useRef<THREE.Mesh>(null!);
     const lightRef = useRef<THREE.PointLight>(null!);
-    const [intensity, setIntensity] = useState(1);
 
     useFrame((state) => {
         const t = state.clock.elapsedTime;
@@ -65,7 +64,6 @@ const MarqueeBulb = ({ position, delay }: { position: [number, number, number]; 
 const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
     const innerRef = useRef<THREE.Group>(null!);
     const materialRef = useRef<THREE.MeshPhysicalMaterial>(null!);
-    const textRef = useRef<any>(null!);
 
     // Generate marquee bulb positions around the frame
     const marqueeBulbs = useMemo(() => {
@@ -121,18 +119,7 @@ const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
             const shimmer = Math.sin(state.clock.elapsedTime * 2) * 0.3 + 0.7;
             materialRef.current.emissiveIntensity = shimmer * 0.15;
         }
-        // Text flickering effect for "CINEMA PERGAMINO"
-        if (textRef.current) {
-            const t = state.clock.elapsedTime;
-            const textFlicker = Math.sin(t * 6) * 0.15 +
-                Math.sin(t * 10) * 0.1 +
-                Math.sin(t * 2.5) * 0.1 + 0.85;
-            // Apply subtle color variation
-            const r = 0.35 + textFlicker * 0.1;
-            const g = 0.2 + textFlicker * 0.05;
-            const b = 0;
-            textRef.current.color = `rgb(${Math.floor(r * 255)}, ${Math.floor(g * 255)}, ${Math.floor(b * 255)})`;
-        }
+
     });
 
     return (
@@ -184,26 +171,7 @@ const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
                     <MarqueeBulb key={i} position={bulb.position} delay={bulb.delay} />
                 ))}
 
-                {/* Text - CINEMA PERGAMINO (Main flickering text) */}
-                <Text
-                    ref={textRef}
-                    position={[0, 0.15, 0.1]}
-                    fontSize={0.35}
-                    color="#FFD700"
-                    anchorX="center"
-                    anchorY="middle"
-                    letterSpacing={0.12}
-                    outlineWidth={0.01}
-                    outlineColor="#8B4513"
-                >
-                    CINEMA PERGAMINO
-                </Text>
 
-                {/* Decorative line under text */}
-                <mesh position={[0, -0.15, 0.095]}>
-                    <boxGeometry args={[2.8, 0.02, 0.01]} />
-                    <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.5} />
-                </mesh>
 
                 {/* Star Decorations - Now with glow */}
                 <mesh position={[-1.6, 0.6, 0.1]}>
