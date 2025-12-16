@@ -185,8 +185,8 @@ const GoldenTicket = React.forwardRef<THREE.Group, GoldenTicketProps>((props, re
 
                 {/* Text - CINEMA PERGAMINO */}
                 <Text
-                    position={[0, 0.2, 0.1]}
-                    fontSize={0.38}
+                    position={[0, 0.35, 0.1]}
+                    fontSize={0.35}
                     color="#FFD700"
                     anchorX="center"
                     anchorY="middle"
@@ -197,11 +197,26 @@ const GoldenTicket = React.forwardRef<THREE.Group, GoldenTicketProps>((props, re
                     CINEMA PERGAMINO
                 </Text>
 
-                {/* Decorative line under text */}
-                <mesh position={[0, -0.1, 0.095]}>
-                    <boxGeometry args={[2.5, 0.025, 0.01]} />
+                {/* Text - ENTRAR (call to action) */}
+                <Text
+                    position={[0, -0.15, 0.1]}
+                    fontSize={0.28}
+                    color="#FFFFFF"
+                    anchorX="center"
+                    anchorY="middle"
+                    letterSpacing={0.15}
+                    outlineWidth={0.01}
+                    outlineColor="#333333"
+                >
+                    ▶ ENTRAR
+                </Text>
+
+                {/* Decorative line between texts */}
+                <mesh position={[0, 0.08, 0.095]}>
+                    <boxGeometry args={[2.5, 0.02, 0.01]} />
                     <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.8} />
                 </mesh>
+
 
                 {/* Star Decorations - Now with glow */}
                 <mesh position={[-1.6, 0.6, 0.1]}>
