@@ -61,7 +61,13 @@ const MarqueeBulb = ({ position, delay }: { position: [number, number, number]; 
     );
 };
 
-const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
+interface GoldenTicketProps {
+    onClick?: () => void;
+    position?: [number, number, number];
+}
+
+const GoldenTicket = React.forwardRef<THREE.Group, GoldenTicketProps>((props, ref) => {
+    const { onClick, ...rest } = props;
     const innerRef = useRef<THREE.Group>(null!);
     const materialRef = useRef<THREE.MeshPhysicalMaterial>(null!);
 
@@ -123,10 +129,16 @@ const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
     });
 
     return (
-        <group ref={ref} {...props}>
+        <group ref={ref} {...rest}>
             <group ref={innerRef}>
-                {/* Main Ticket Body - Dark Cinema Board */}
-                <mesh castShadow receiveShadow>
+                {/* Main Ticket Body - Dark Cinema Board - CLICKABLE */}
+                <mesh
+                    castShadow
+                    receiveShadow
+                    onClick={onClick}
+                    onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
+                    onPointerOut={() => { document.body.style.cursor = 'auto'; }}
+                >
                     <boxGeometry args={[4.5, 2.2, 0.15]} />
                     <meshPhysicalMaterial
                         ref={materialRef}
@@ -393,7 +405,11 @@ FilmReel.displayName = 'FilmReel';
 
 // === SCENE MANAGER ===
 
-export default function CinemaScene() {
+interface CinemaSceneProps {
+    onTicketClick?: () => void;
+}
+
+export default function CinemaScene({ onTicketClick }: CinemaSceneProps) {
     const scroll = useScroll();
     const { width, height } = useThree((state) => state.viewport);
     const groupRef = useRef<THREE.Group>(null!);
@@ -521,7 +537,7 @@ export default function CinemaScene() {
             <FloatingFilmStrips />
 
             {/* === 3D OBJECTS === */}
-            <GoldenTicket ref={ticketRef} position={[0, 0, 0]} />
+            <GoldenTicket ref={ticketRef} position={[0, 0, 0]} onClick={onTicketClick} />
             <PopcornBucket ref={popcornRef} position={[0, 0, 0]} />
             <FilmReel ref={reelRef} position={[0, 0, 0]} />
 
