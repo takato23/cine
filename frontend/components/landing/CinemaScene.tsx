@@ -7,9 +7,109 @@ import * as THREE from 'three';
 
 // === ENHANCED 3D MODELS ===
 
+// Marquee Light Bulb Component - Individual flickering bulb
+const MarqueeBulb = ({ position, delay }: { position: [number, number, number]; delay: number }) => {
+    const meshRef = useRef<THREE.Mesh>(null!);
+    const lightRef = useRef<THREE.PointLight>(null!);
+    const [intensity, setIntensity] = useState(1);
+
+    useFrame((state) => {
+        const t = state.clock.elapsedTime;
+        // Create flickering effect with random-like variations
+        const flicker = Math.sin(t * 8 + delay * 10) * 0.3 +
+            Math.sin(t * 12 + delay * 7) * 0.2 +
+            Math.sin(t * 3 + delay * 15) * 0.2 + 0.8;
+
+        // Occasional "off" moments for more realistic flickering
+        const randomOff = Math.sin(t * 0.5 + delay * 20) > 0.95 ? 0.3 : 1;
+
+        const finalIntensity = Math.max(0.2, flicker * randomOff);
+
+        if (meshRef.current) {
+            const material = meshRef.current.material as THREE.MeshStandardMaterial;
+            material.emissiveIntensity = finalIntensity * 2;
+        }
+        if (lightRef.current) {
+            lightRef.current.intensity = finalIntensity * 0.15;
+        }
+    });
+
+    return (
+        <group position={position}>
+            {/* Bulb base/socket */}
+            <mesh position={[0, 0, -0.02]}>
+                <cylinderGeometry args={[0.04, 0.05, 0.04, 8]} />
+                <meshStandardMaterial color="#2a2a2a" metalness={0.8} roughness={0.3} />
+            </mesh>
+            {/* Light bulb */}
+            <mesh ref={meshRef}>
+                <sphereGeometry args={[0.06, 12, 12]} />
+                <meshStandardMaterial
+                    color="#FFE066"
+                    emissive="#FFD700"
+                    emissiveIntensity={2}
+                    toneMapped={false}
+                />
+            </mesh>
+            {/* Point light for glow */}
+            <pointLight
+                ref={lightRef}
+                color="#FFD700"
+                intensity={0.15}
+                distance={0.8}
+            />
+        </group>
+    );
+};
+
 const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
     const innerRef = useRef<THREE.Group>(null!);
     const materialRef = useRef<THREE.MeshPhysicalMaterial>(null!);
+    const textRef = useRef<any>(null!);
+
+    // Generate marquee bulb positions around the frame
+    const marqueeBulbs = useMemo(() => {
+        const bulbs: { position: [number, number, number]; delay: number }[] = [];
+        const frameWidth = 4.5;
+        const frameHeight = 2.2;
+        const bulbSpacing = 0.35;
+
+        // Top edge
+        const topCount = Math.floor(frameWidth / bulbSpacing);
+        for (let i = 0; i <= topCount; i++) {
+            bulbs.push({
+                position: [-frameWidth / 2 + i * bulbSpacing, frameHeight / 2 + 0.05, 0.1],
+                delay: i * 0.1
+            });
+        }
+
+        // Bottom edge
+        for (let i = 0; i <= topCount; i++) {
+            bulbs.push({
+                position: [-frameWidth / 2 + i * bulbSpacing, -frameHeight / 2 - 0.05, 0.1],
+                delay: i * 0.1 + 0.5
+            });
+        }
+
+        // Left edge (excluding corners)
+        const sideCount = Math.floor(frameHeight / bulbSpacing) - 1;
+        for (let i = 1; i <= sideCount; i++) {
+            bulbs.push({
+                position: [-frameWidth / 2 - 0.05, frameHeight / 2 - i * bulbSpacing, 0.1],
+                delay: i * 0.1 + 1
+            });
+        }
+
+        // Right edge (excluding corners)
+        for (let i = 1; i <= sideCount; i++) {
+            bulbs.push({
+                position: [frameWidth / 2 + 0.05, frameHeight / 2 - i * bulbSpacing, 0.1],
+                delay: i * 0.1 + 1.5
+            });
+        }
+
+        return bulbs;
+    }, []);
 
     useFrame((state) => {
         if (innerRef.current) {
@@ -21,86 +121,116 @@ const GoldenTicket = React.forwardRef<THREE.Group, any>((props, ref) => {
             const shimmer = Math.sin(state.clock.elapsedTime * 2) * 0.3 + 0.7;
             materialRef.current.emissiveIntensity = shimmer * 0.15;
         }
+        // Text flickering effect for "CINEMA PERGAMINO"
+        if (textRef.current) {
+            const t = state.clock.elapsedTime;
+            const textFlicker = Math.sin(t * 6) * 0.15 +
+                Math.sin(t * 10) * 0.1 +
+                Math.sin(t * 2.5) * 0.1 + 0.85;
+            // Apply subtle color variation
+            const r = 0.35 + textFlicker * 0.1;
+            const g = 0.2 + textFlicker * 0.05;
+            const b = 0;
+            textRef.current.color = `rgb(${Math.floor(r * 255)}, ${Math.floor(g * 255)}, ${Math.floor(b * 255)})`;
+        }
     });
 
     return (
         <group ref={ref} {...props}>
             <group ref={innerRef}>
-                {/* Main Ticket Body - Holographic Gold */}
+                {/* Main Ticket Body - Dark Cinema Board */}
                 <mesh castShadow receiveShadow>
                     <boxGeometry args={[4.5, 2.2, 0.15]} />
                     <meshPhysicalMaterial
                         ref={materialRef}
-                        color="#FFD700"
-                        roughness={0.1}
-                        metalness={1}
-                        clearcoat={1}
-                        clearcoatRoughness={0.05}
-                        reflectivity={1}
-                        envMapIntensity={2.5}
-                        emissive="#FFD700"
+                        color="#1a1008"
+                        roughness={0.3}
+                        metalness={0.5}
+                        clearcoat={0.5}
+                        clearcoatRoughness={0.2}
+                        reflectivity={0.5}
+                        envMapIntensity={1.5}
+                        emissive="#3a2500"
                         emissiveIntensity={0.1}
-                        iridescence={0.3}
-                        iridescenceIOR={1.5}
                     />
                 </mesh>
 
-                {/* Gold Edge/Frame */}
+                {/* Gold Ornate Frame */}
                 <mesh position={[0, 0, 0.08]} castShadow>
-                    <boxGeometry args={[4.2, 1.9, 0.02]} />
+                    <boxGeometry args={[4.3, 2.0, 0.03]} />
+                    <meshPhysicalMaterial
+                        color="#8B7355"
+                        roughness={0.4}
+                        metalness={0.7}
+                        emissive="#5a4020"
+                        emissiveIntensity={0.1}
+                    />
+                </mesh>
+
+                {/* Inner Gold Frame Border */}
+                <mesh position={[0, 0, 0.085]}>
+                    <boxGeometry args={[4.0, 1.7, 0.01]} />
                     <meshPhysicalMaterial
                         color="#B8860B"
-                        roughness={0.3}
+                        roughness={0.2}
                         metalness={0.9}
+                        emissive="#FFD700"
+                        emissiveIntensity={0.2}
                     />
                 </mesh>
 
-                {/* Perforated Edge (left) */}
-                <group position={[-2.0, 0, 0]}>
-                    {Array.from({ length: 8 }).map((_, i) => (
-                        <mesh key={i} position={[0, -0.9 + i * 0.25, 0]} rotation={[Math.PI / 2, 0, 0]}>
-                            <cylinderGeometry args={[0.06, 0.06, 0.2, 8]} />
-                            <meshStandardMaterial color="#1a0505" />
-                        </mesh>
-                    ))}
-                </group>
+                {/* === MARQUEE LIGHT BULBS === */}
+                {marqueeBulbs.map((bulb, i) => (
+                    <MarqueeBulb key={i} position={bulb.position} delay={bulb.delay} />
+                ))}
 
-                {/* Text - ENTRADA */}
+                {/* Text - CINEMA PERGAMINO (Main flickering text) */}
                 <Text
-                    position={[0.3, 0.3, 0.09]}
-                    fontSize={0.5}
-                    color="#3a2500"
+                    ref={textRef}
+                    position={[0, 0.15, 0.1]}
+                    fontSize={0.35}
+                    color="#FFD700"
                     anchorX="center"
                     anchorY="middle"
-                    letterSpacing={0.15}
-                >
-                    ENTRADA
-                </Text>
-
-                {/* Text - Cinema Name */}
-                <Text
-                    position={[0.3, -0.25, 0.09]}
-                    fontSize={0.22}
-                    color="#5a3500"
-                    anchorX="center"
-                    anchorY="middle"
-                    letterSpacing={0.08}
+                    letterSpacing={0.12}
+                    outlineWidth={0.01}
+                    outlineColor="#8B4513"
                 >
                     CINEMA PERGAMINO
                 </Text>
 
-                {/* Star Decoration */}
-                <mesh position={[-1.5, 0.5, 0.09]}>
-                    <circleGeometry args={[0.15, 5]} />
-                    <meshStandardMaterial color="#B8860B" emissive="#FFD700" emissiveIntensity={0.5} />
-                </mesh>
-                <mesh position={[1.9, -0.6, 0.09]}>
-                    <circleGeometry args={[0.12, 5]} />
-                    <meshStandardMaterial color="#B8860B" emissive="#FFD700" emissiveIntensity={0.5} />
+                {/* Decorative line under text */}
+                <mesh position={[0, -0.15, 0.095]}>
+                    <boxGeometry args={[2.8, 0.02, 0.01]} />
+                    <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.5} />
                 </mesh>
 
-                {/* Glow Effect */}
-                <pointLight position={[0, 0, 1]} intensity={0.5} color="#FFD700" distance={3} />
+                {/* Star Decorations - Now with glow */}
+                <mesh position={[-1.6, 0.6, 0.1]}>
+                    <circleGeometry args={[0.12, 5]} />
+                    <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={1} toneMapped={false} />
+                </mesh>
+                <mesh position={[1.6, 0.6, 0.1]}>
+                    <circleGeometry args={[0.12, 5]} />
+                    <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={1} toneMapped={false} />
+                </mesh>
+                <mesh position={[-1.6, -0.5, 0.1]}>
+                    <circleGeometry args={[0.1, 5]} />
+                    <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.8} toneMapped={false} />
+                </mesh>
+                <mesh position={[1.6, -0.5, 0.1]}>
+                    <circleGeometry args={[0.1, 5]} />
+                    <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.8} toneMapped={false} />
+                </mesh>
+
+                {/* Main Glow Effect from center */}
+                <pointLight position={[0, 0, 1.5]} intensity={1} color="#FFD700" distance={4} />
+
+                {/* Ambient glow behind the sign */}
+                <mesh position={[0, 0, -0.1]}>
+                    <planeGeometry args={[5, 2.8]} />
+                    <meshBasicMaterial color="#FFD700" transparent opacity={0.1} />
+                </mesh>
             </group>
         </group>
     );
