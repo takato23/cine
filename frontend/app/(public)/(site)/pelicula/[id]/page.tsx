@@ -81,27 +81,27 @@ export default function PeliculaPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
           </div>
 
-          {/* 2. NAVIGATION (Floating) */}
-          <nav className="fixed top-0 left-0 right-0 z-50 p-6">
+          {/* 2. NAVIGATION - Now relative, part of main content to avoid overlap with global nav */}
+          <div className="relative z-20 pt-4 px-4">
             <div className="container mx-auto">
               <Link href="/cartelera">
                 <motion.button
                   whileHover={{ x: -5 }}
-                  className="flex items-center gap-2 text-white/70 hover:text-white transition-colors bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/5"
+                  className="flex items-center gap-2 text-white/70 hover:text-white transition-colors bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10"
                 >
                   <ArrowLeft className="h-5 w-5" />
-                  <span className="font-semibold text-sm">Volver a Cartelera</span>
+                  <span className="font-semibold text-sm">Volver</span>
                 </motion.button>
               </Link>
             </div>
-          </nav>
+          </div>
 
           {/* 3. MAIN CONTENT */}
-          <main className="relative z-10 container mx-auto px-4 pt-32 pb-20">
+          <main className="relative z-10 container mx-auto px-4 pt-8 pb-20">
             <div className="grid lg:grid-cols-12 gap-12 items-start">
 
               {/* LEFT: Poster & Key Info */}
-              <div className="lg:col-span-4 lg:sticky lg:top-32 relative group">
+              <div className="lg:col-span-4 lg:sticky lg:top-24 relative group">
                 <motion.div
                   initial={{ opacity: 0, y: 30, rotateY: 10 }}
                   animate={{ opacity: 1, y: 0, rotateY: 0 }}
@@ -196,7 +196,16 @@ export default function PeliculaPage() {
                               <div>
                                 <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Estreno</p>
                                 <p className="text-white font-medium">
-                                  {movie.releaseDate ? format(new Date(movie.releaseDate), "d MMM yyyy", { locale: es }) : '—'}
+                                  {(() => {
+                                    if (!movie.releaseDate) return '—';
+                                    try {
+                                      const date = new Date(movie.releaseDate);
+                                      if (isNaN(date.getTime())) return '—';
+                                      return format(date, "d MMM yyyy", { locale: es });
+                                    } catch {
+                                      return '—';
+                                    }
+                                  })()}
                                 </p>
                               </div>
                             </div>
